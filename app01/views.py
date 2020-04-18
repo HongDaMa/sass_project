@@ -1,19 +1,30 @@
 from django.shortcuts import render,HttpResponse
 from django.conf import settings
 from utils.tencent.sms import send_sms_single
-import random
+from rest_framework.views import APIView
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
+from django import forms
+from app01 import models
 # Create your views here.
-def sms(request):
-    tpl = request.GET.get('tpl')
-    print(tpl)
-    print(settings.TENCET_SMS_TEMPLATES)
-    template_id = settings.TENCET_SMS_TEMPLATES.get(tpl)
-    print(template_id)
-    if not template_id:
-        return HttpResponse('模板错误')
-    code = random.randrange(100000,999999)
-    res = send_sms_single('17649803845',template_id,[code,])
-    if res['result'] == 0:
-        return HttpResponse('成功')
-    else:
-        return HttpResponse(res['errmsg'])
+
+class RegisterModelForm(forms.ModelForm):
+    mobile_phone = forms.CharField(label='手机号',validators=[RegexValidator(r"^(1[3|4|5|6|7|8|9])\d{9}$")])
+    password = forms.CharField(label='密码',widget=forms.PasswordInput())
+    confirm_password = forms.CharField(label='重复密码',widget=forms.PasswordInput())
+    code = forms.CharField(label='验证码')
+    class Meta:
+        model = models.UserInfo
+        fields = ['username','email','password','confirm_password','mobile_phone','code']
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        for name,field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = '请输入%s'%(field.label)
+
+class Register(APIView):
+    def get(self,request,*args,**kwargs):
+        form = RegisterModelForm()
+        return render(request,'register.html',{'form':form})
+    def post(self,request,*args,**kwargs):
+        pass

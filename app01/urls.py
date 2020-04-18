@@ -3,5 +3,5 @@
 from django.conf.urls import url
 from app01 import views
 urlpatterns = [
-    url(r'^sms/',views.sms),
+    url(r'^register/',views.Register.as_view()),
 ]
