@@ -121,6 +121,18 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+TENCENT_SMS_APP_ID = 666666666
+
+TENCENT_SMS_APP_KEY = '6666666666666666666'
+
+TENCENT_SMS_SIGN = '66666'
+
+TENCET_SMS_TEMPLATES = {
+    'register':582869,
+    'login':582871,
+    'reword':582870
+}
+
 try:
 	from .local_settings import *
 except ImportError:
