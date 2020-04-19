@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+    <style>
+        .account{
+            width: 400px;
+            margin: 0 auto;
+        }
+        .error-msg{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="account">
+    <h1 style="text-align: center">注册</h1>
+        <form>
+            {% for filed in form %}
+                {% if filed.name == 'code' %}
+                    <div class="form-group">
+                        <label for={{ filed.id_for_label }}.>{{ filed.label }}</label>
+                        <div class="clearfix">
+                            <div class="col-md-6" style="padding: 0px">{{ filed }}
+                            <span class="error-msg"></span>
+                            </div>
+                            <div class="col-md-6" ><button type="button" class="btn btn-default" id="btn_sms">点击获取验证码</button></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for={{ filed.id_for_label }}.>{{ filed.label }}</label>
+                        {{ filed }}
+                        <span class="error-msg" ></span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+          <button type="submit" class="btn btn-primary">注册</button>
+        </form>
+    </div>
+<script src="/static/js/jquery.js"></script>
+<script>
+    $(function () {
+        bindClickBtnSms()
+    })
+    function bindClickBtnSms(){
+         $('#btn_sms').click(function () {
+            var phonr_num = $('#id_mobile_phone').val()
+            $.ajax({
+                url:'/app01/register/',
+                data:{'phonr_num':phonr_num},
+                type:'POST',
+                dataType:"JSON",
+                success:function (data) {
+                    console.log(data)
+                }
+                }
+            )
+            }
+        )
+    }
+</script>
+</body>
+</html>

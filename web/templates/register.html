@@ -1,3 +1,4 @@
+{% extends 'layout/basic.html' %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,9 @@
         .account{
             width: 400px;
             margin: 0 auto;
+        }
+        .error-msg{
+            color: red;
         }
     </style>
 </head>
@@ -20,19 +24,44 @@
                     <div class="form-group">
                         <label for={{ filed.id_for_label }}.>{{ filed.label }}</label>
                         <div class="clearfix">
-                            <div class="col-md-6" style="padding: 0px">{{ filed }}</div>
-                            <div class="col-md-6" ><button type="button" class="btn btn-default">点击获取验证码</button></div>
+                            <div class="col-md-6" style="padding: 0px">{{ filed }}
+                            <span class="error-msg"></span>
+                            </div>
+                            <div class="col-md-6" ><button type="button" class="btn btn-default" id="btn_sms">点击获取验证码</button></div>
                         </div>
                     </div>
                 {% else %}
                     <div class="form-group">
                         <label for={{ filed.id_for_label }}.>{{ filed.label }}</label>
                         {{ filed }}
+                        <span class="error-msg" ></span>
                     </div>
                 {% endif %}
             {% endfor %}
           <button type="submit" class="btn btn-primary">注册</button>
         </form>
     </div>
+<script src="/static/js/jquery.js"></script>
+<script>
+    $(function () {
+        bindClickBtnSms()
+    })
+    function bindClickBtnSms(){
+         $('#btn_sms').click(function () {
+            var phonr_num = $('#id_mobile_phone').val()
+            $.ajax({
+                url:'/app01/register/',
+                data:{'phonr_num':phonr_num},
+                type:'POST',
+                dataType:"JSON",
+                success:function (data) {
+                    console.log(data)
+                }
+                }
+            )
+            }
+        )
+    }
+</script>
 </body>
 </html>
