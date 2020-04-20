@@ -1,67 +1,130 @@
 {% extends 'layout/basic.html' %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>用户注册</title>
-    <link rel="stylesheet" href="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/css/bootstrap.min.css"/>
+{% load static %}
+{% block tiele %}用户注册{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href= "{% static 'css/acount.css' %}" />
     <style>
-        .account{
-            width: 400px;
-            margin: 0 auto;
-        }
         .error-msg{
             color: red;
+            position: absolute;/*使用绝对定位，防止挤压后面的标签*/
+            font-size: 11px;
         }
     </style>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <div class="account">
-    <h1 style="text-align: center">注册</h1>
-        <form>
+        <div class="title">用户注册</div>
+        <form id="form" method="POST" novalidate>
+            {% csrf_token %}
             {% for filed in form %}
                 {% if filed.name == 'code' %}
                     <div class="form-group">
                         <label for={{ filed.id_for_label }}.>{{ filed.label }}</label>
                         <div class="clearfix">
-                            <div class="col-md-6" style="padding: 0px">{{ filed }}
-                            <span class="error-msg"></span>
+                            <div class="col-md-7" style="padding: 0px">{{ filed }}
+                            <span class="error-msg">{{ filed.errors.0 }}</span>
                             </div>
-                            <div class="col-md-6" ><button type="button" class="btn btn-default" id="btn_sms">点击获取验证码</button></div>
+                            <div class="col-md-5" ><input type="button" class="btn btn-default" id="btn_sms" value="点击获取验证码"></div>
                         </div>
                     </div>
                 {% else %}
                     <div class="form-group">
                         <label for={{ filed.id_for_label }}.>{{ filed.label }}</label>
                         {{ filed }}
-                        <span class="error-msg" ></span>
+                        <span class="error-msg" >{{ filed.errors.0 }}</span>
                     </div>
                 {% endif %}
             {% endfor %}
-          <button type="submit" class="btn btn-primary">注册</button>
+            <div class="row">
+                <div class="col-xs-3">
+                    <input id="btnSubmit" type="button" class="btn btn-primary" value="注  册"/>
+                </div>
+            </div>
         </form>
     </div>
-<script src="/static/js/jquery.js"></script>
+{% endblock %}
+
+{% block js %}
 <script>
     $(function () {
         bindClickBtnSms()
+        bindClickBtnSubmit()
     })
     function bindClickBtnSms(){
          $('#btn_sms').click(function () {
-            var phonr_num = $('#id_mobile_phone').val()
+             $('.error-msg').empty()
+            var mobile_phone = $('#id_mobile_phone').val()
             $.ajax({
-                url:'/app01/register/',
-                data:{'phonr_num':phonr_num},
-                type:'POST',
+                url:'/send/sms/',
+                data:{'mobile_phone':mobile_phone,'tpl':'register'},
+                type:'GET',
                 dataType:"JSON",
-                success:function (data) {
-                    console.log(data)
+                success:function (res) {
+                    console.log(res)
+                    if (res.status == true){
+                        sendSmsRemind()
+                    }else {
+                        console.log(res)//{''status':False,'error':{'mobile_phone':['请输入一个有效值。']}}
+                        $.each(res.error,function (key,value) {
+                            $('#id_'+key).next().text(value[0]);
+                        })
+                    }
                 }
                 }
             )
             }
         )
     }
+    function bindClickBtnSubmit() {
+        $('#btnSubmit').click(function () {
+            $('.error-msg').empty()
+            var username = $('#id_username').val()
+            var email = $('#id_email').val()
+            var password = $('#id_password').val()
+            var confirm_password = $('#id_confirm_password').val()
+            var mobile_phone = $('#id_mobile_phone').val()
+            var code = $('#id_code').val()
+            $.ajax({
+                url: '/register/',
+                type: 'POST',
+                data:{
+                    'username':username,
+                    'email':email,
+                    'password':password,
+                    'confirm_password':confirm_password,
+                    'mobile_phone':mobile_phone,
+                    'code':code
+                },
+                dataType: 'JSON',
+                success:function (res) {
+                    if (res.status == true){
+                        console.log('成功')
+                    }else {
+                        $.each(res.error,function (key,value) {
+                            $('#id_'+key).next().text(value[0]);
+                        })
+                    }
+                }
+            })
+        })
+    }
+    function sendSmsRemind() {
+        var SendSms = $('#btn_sms')
+        SendSms.prop('disabled',true)//禁用
+        //每隔1000毫秒运行一次
+        var time = 60
+        var obj = setInterval(function(){
+            time = time -1
+            console.log(time)
+            SendSms.val(time+'秒重新发送')
+            if (time < 1){
+                clearInterval(obj);
+                SendSms.val('点击获取验证码').prop('disabled',false)
+            }
+        },1000)
+        //关闭定时器
+    }
 </script>
-</body>
-</html>
+{% endblock %}
