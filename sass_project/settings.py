@@ -142,3 +142,8 @@ try:
 	from .local_settings import *
 except ImportError:
 	pass
+
+REST_FRAMEWORK = {
+    # 全局使用的认证类：
+    "DEFAULT_PARSER_CLASSES":['rest_framework.parsers.JSONParser','rest_framework.parsers.FormParser'],
+}

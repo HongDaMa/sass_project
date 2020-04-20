@@ -3,7 +3,7 @@
 {% block tiele %}用户注册{% endblock %}
 
 {% block css %}
-    <link rel="stylesheet" href= "{% static 'css/acount.css' %}" />
+    <link rel="stylesheet" href= "{% static 'css/account.css' %}" />
     <style>
         .error-msg{
             color: red;
@@ -16,7 +16,7 @@
 {% block content %}
     <div class="account">
         <div class="title">用户注册</div>
-        <form id="form" method="POST" novalidate>
+        <form id="resForm" method="POST" novalidate>
             {% csrf_token %}
             {% for filed in form %}
                 {% if filed.name == 'code' %}
@@ -52,6 +52,9 @@
         bindClickBtnSms()
         bindClickBtnSubmit()
     })
+    /*
+    点击获取验证码
+    */
     function bindClickBtnSms(){
          $('#btn_sms').click(function () {
              $('.error-msg').empty()
@@ -62,7 +65,6 @@
                 type:'GET',
                 dataType:"JSON",
                 success:function (res) {
-                    console.log(res)
                     if (res.status == true){
                         sendSmsRemind()
                     }else {
@@ -77,26 +79,17 @@
             }
         )
     }
+    /*
+    点击提交（注册）
+    */
     function bindClickBtnSubmit() {
         $('#btnSubmit').click(function () {
+            /* 清空所有错误信息 */
             $('.error-msg').empty()
-            var username = $('#id_username').val()
-            var email = $('#id_email').val()
-            var password = $('#id_password').val()
-            var confirm_password = $('#id_confirm_password').val()
-            var mobile_phone = $('#id_mobile_phone').val()
-            var code = $('#id_code').val()
             $.ajax({
-                url: '/register/',
+                url: {% url 'register' %},
                 type: 'POST',
-                data:{
-                    'username':username,
-                    'email':email,
-                    'password':password,
-                    'confirm_password':confirm_password,
-                    'mobile_phone':mobile_phone,
-                    'code':code
-                },
+                data:$('#resForm').serialize(), //Form中的所有字段+数据+csrf token
                 dataType: 'JSON',
                 success:function (res) {
                     if (res.status == true){

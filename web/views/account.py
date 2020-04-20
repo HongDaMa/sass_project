@@ -19,7 +19,9 @@ class Register(APIView):
     def post(self,request,*args,**kwargs):
         form = RegisterModelForm(data=request.POST)
         if form.is_valid():
-            return JsonResponse({'status':True})
+            #验证通过，写入数据库，（密码应该是密文）
+            instance = form.save()
+            return JsonResponse({'status':True,'data':'/login/'})
         else:
             return JsonResponse({'status':False,'error':form.errors})
 
@@ -30,6 +32,7 @@ class SendSms(APIView):
         form = SendsmsForm(data=request.GET,request=request)
         #校验手机号，不能为空，格式是否正确
         if form.is_valid():
+            #验证通过，写入数据库
             return JsonResponse({'status':True})
         else:
             return JsonResponse({'status':False,'error':form.errors})
