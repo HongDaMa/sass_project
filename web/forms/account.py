@@ -105,7 +105,7 @@ class RegisterModelForm(forms.ModelForm):
             value = str(value,encoding='utf-8')
             print(value)
         if value == None:
-            raise ValidationError('验证码已过期！')
+            raise ValidationError('验证码不存在或者已过期！')
         elif value != None and value != code:
             raise ValidationError('验证码错误，请重新输入！')
         else:

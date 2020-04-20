@@ -21,7 +21,7 @@ class Register(APIView):
         if form.is_valid():
             #验证通过，写入数据库，（密码应该是密文）
             instance = form.save()
-            return JsonResponse({'status':True,'data':'/login/'})
+            return JsonResponse({'status':True,'url':'/login/'})
         else:
             return JsonResponse({'status':False,'error':form.errors})
 

@@ -93,7 +93,7 @@
                 dataType: 'JSON',
                 success:function (res) {
                     if (res.status == true){
-                        console.log('成功')
+                        location.href = res.url
                     }else {
                         $.each(res.error,function (key,value) {
                             $('#id_'+key).next().text(value[0]);
@@ -110,7 +110,6 @@
         var time = 60
         var obj = setInterval(function(){
             time = time -1
-            console.log(time)
             SendSms.val(time+'秒重新发送')
             if (time < 1){
                 clearInterval(obj);
