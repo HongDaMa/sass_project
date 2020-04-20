@@ -7,6 +7,7 @@ from django.contrib import admin
 
 
 urlpatterns = [
-    url(r'register/',account.Register.as_view(),name='register'),
-    url(r'send/sms/',account.SendSms.as_view(),name='send_sms'),
+    url(r'^register/$',account.Register.as_view(),name='register'),
+    url(r'^login/sms/$', account.LoginSms.as_view(), name='login_sms'),
+    url(r'^send/sms/$',account.SendSms.as_view(),name='send_sms'),
 ]

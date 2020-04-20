@@ -111,6 +111,44 @@ class RegisterModelForm(forms.ModelForm):
         else:
             return code
 
+class Login_SmsForm(forms.Form):
+    mobile_phone = forms.CharField(
+        label='手机号',
+        required=True,
+        validators=[RegexValidator(r"^(1[3|4|5|6|7|8|9])\d{9}$")],
+        error_messages={'required': '手机号不能为空'}
+    )
+    code = forms.CharField(
+        label='验证码',
+        required=True,
+        error_messages={'required': '验证码不能为空。'}
+    )
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        for name,field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = '请输入%s'%(field.label)
+    def clean_mobile_phone(self):
+        mobile_phone = self.cleaned_data.get('mobile_phone')
+        exists = models.UserInfo.objects.filter(mobile_phone=mobile_phone).exists()
+        if not exists:
+            raise ValidationError('手机号尚未注册，请先注册！')
+        else:
+            return mobile_phone
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        mobile_phone = self.cleaned_data.get('mobile_phone')
+        if not mobile_phone:
+            return code
+        conn = get_redis_connection('default')
+        redis_code = conn.get(mobile_phone)
+        if not redis_code:
+            raise ValidationError('验证码失效或未发送，请重新发送')
+        redis_str_code = redis_code.decode('utf-8')
+        if code != redis_str_code:
+            raise ValidationError('验证码错误，请重新输入')
+        return code
+
 class SendsmsForm(forms.Form):
 
     mobile_phone = forms.CharField(
@@ -137,14 +175,19 @@ class SendsmsForm(forms.Form):
         if not template_id:
             raise ValidationError('短信模板错误')
         exists = models.UserInfo.objects.filter(mobile_phone=mobile_phone).exists()
-        if exists:
-            raise ValidationError('手机号已存在')
+        if tpl == 'login':
+            if not exists:
+                raise ValidationError('手机号不存在')
+        else:
+            # 校验数据库中是否已有手机号
+            if exists:
+                raise ValidationError('手机号已存在')
 
         code = random.randrange(1000,9999)
         # 利用腾讯sdk发送短信
-        sms = send_sms_single(mobile_phone,template_id,[code,])
-        if sms['result'] != 0:
-            raise ValidationError("短信发送失败，{}".format(sms['errmsg']))
+        # sms = send_sms_single(mobile_phone,template_id,[code,])
+        # if sms['result'] != 0:
+        #     raise ValidationError("短信发送失败，{}".format(sms['errmsg']))
         # 去连接池中获取一个连接
         conn = get_redis_connection("default")
         #将验证码写入redis

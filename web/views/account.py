@@ -7,7 +7,7 @@
 from django.shortcuts import render,HttpResponse
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from web.forms.account import RegisterModelForm,SendsmsForm
+from web.forms.account import RegisterModelForm,Login_SmsForm,SendsmsForm
 
 # Create your views here.
 
@@ -22,6 +22,18 @@ class Register(APIView):
             #验证通过，写入数据库，（密码应该是密文）
             instance = form.save()
             return JsonResponse({'status':True,'url':'/login/'})
+        else:
+            return JsonResponse({'status':False,'error':form.errors})
+
+#短信登录模块
+class LoginSms(APIView):
+    def get(self,request,*args,**kwargs):
+        form = Login_SmsForm()
+        return render(request,'login_sms.html',{'form':form})
+    def post(selfself,request,*args,**kwargs):
+        form = Login_SmsForm(data=request.POST)
+        if form.is_valid():
+            return JsonResponse({'status': True, 'url': '/index/'})
         else:
             return JsonResponse({'status':False,'error':form.errors})
 
