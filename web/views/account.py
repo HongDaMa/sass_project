@@ -9,6 +9,8 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from web.forms.account import RegisterModelForm,Login_SmsForm,SendsmsForm,LoginForm
 from web import models
+import uuid
+import datetime
 
 # Create your views here.
 
@@ -23,6 +25,17 @@ class Register(APIView):
         if form.is_valid():
             #验证通过，写入数据库，（密码应该是密文）
             instance = form.save()
+            """  在交易记录表生成对应的交易信息  """
+            price_object = models.PricePoliy.objects.filter(category=1,title='个人免费版').first()
+            models.Transaction.objects.create(
+                status=2,
+                order= uuid.uuid4(),#根据当前时间和当前计算机的网卡计算的随机字符串
+                user=instance,
+                price_poliy=price_object,
+                count=0,
+                price=0,
+                start_datetime=datetime.datetime.now(),
+            )
             return JsonResponse({'status':True,'url':'/login/'})
         else:
             return JsonResponse({'status':False,'error':form.errors})
