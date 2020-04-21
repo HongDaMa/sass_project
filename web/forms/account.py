@@ -10,7 +10,14 @@ from utils import encrypt
 from utils.tencent.sms import send_sms_single
 import random
 
-class RegisterModelForm(forms.ModelForm):
+class BootStrapForm(object):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        for name,field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = '请输入%s'%(field.label)
+
+class RegisterModelForm(BootStrapForm,forms.ModelForm):
 
     mobile_phone = forms.CharField(
         label='手机号',
@@ -44,11 +51,7 @@ class RegisterModelForm(forms.ModelForm):
     class Meta:
         model = models.UserInfo
         fields = ['username','email','password','confirm_password','mobile_phone','code']
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-        for name,field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = '请输入%s'%(field.label)
+
 
     def clean_username(self):
         """
@@ -111,7 +114,46 @@ class RegisterModelForm(forms.ModelForm):
         else:
             return code
 
-class Login_SmsForm(forms.Form):
+class LoginForm(BootStrapForm,forms.Form):
+
+    username = forms.CharField(label='邮箱或者手机号', required=True)
+    password = forms.CharField(
+        label='密码',
+        required=True,
+        widget=forms.PasswordInput(),
+        error_messages={'required': '密码不能为空。'}
+    )
+    code = forms.CharField(
+        label='验证码',
+        required=True,
+        error_messages={'required': '验证码不能为空。'}
+    )
+
+    #重新__init__将request传入
+    def __init__(self,request,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.request = request
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        #加密&返回
+        return encrypt.md5(password)
+
+    def clean_code(self):
+        """
+        code的钩子函数
+        :return:
+        """
+        code = self.cleaned_data['code']
+        image_code = self.request.session.get('image_code')
+        if not image_code:
+            raise ValidationError('验证码不存在，或者已过期')
+        elif code.upper() != image_code.upper():
+            raise ValidationError('验证码错误')
+        else:
+            return code
+
+class Login_SmsForm(BootStrapForm,forms.Form):
     mobile_phone = forms.CharField(
         label='手机号',
         required=True,
