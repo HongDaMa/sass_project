@@ -227,9 +227,9 @@ class SendsmsForm(forms.Form):
 
         code = random.randrange(1000,9999)
         # 利用腾讯sdk发送短信
-        # sms = send_sms_single(mobile_phone,template_id,[code,])
-        # if sms['result'] != 0:
-        #     raise ValidationError("短信发送失败，{}".format(sms['errmsg']))
+        sms = send_sms_single(mobile_phone,template_id,[code,])
+        if sms['result'] != 0:
+            raise ValidationError("短信发送失败，{}".format(sms['errmsg']))
         # 去连接池中获取一个连接
         conn = get_redis_connection("default")
         #将验证码写入redis
