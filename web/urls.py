@@ -17,4 +17,6 @@ urlpatterns = [
     url(r'^index/$', account.Index.as_view(), name='index'),
     url(r'^logout/$', account.Logout.as_view(), name='logout'),
     url(r'^project/list/$', project.Project_List.as_view(), name='project_list'),
+    url(r'^project/star/(?P<project_type>\w+)/(?P<project_id>\d+)/$', project.Project_Star.as_view(), name='project_star'),
+    url(r'^project/unstar/(?P<project_type>\w+)/(?P<project_id>\d+)/$', project.Project_unStar.as_view(), name='project_unstar'),
 ]

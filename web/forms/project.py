@@ -5,13 +5,16 @@ from web import models
 from django.core.validators import RegexValidator,ValidationError
 from django.core.exceptions import ValidationError
 from web.forms.account import BootStrapForm
+from web.forms.widgets import ColorRadioSelect
 
 class ProjectModelForm(BootStrapForm,forms.ModelForm):
     """新建项目表单"""
+    BootStrapForm_exclude = ['color']
     class Meta:
         model = models.Project
         fields = ['name','color','desc']
         widgets = {
+            'color':ColorRadioSelect(attrs={'class':'color-radio'}),
             'desc':forms.Textarea()
         }
 

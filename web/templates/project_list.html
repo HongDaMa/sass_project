@@ -2,15 +2,178 @@
 
 {% block css %}
     <style>
-        .prokject{
-            margin-bottom: 10px;
+        .project {
+            margin-top: 10px;
+        }
+
+        .panel-body {
+            padding: 0;
+            display: flex;
+            {#Flex是Flexible Box的缩写，#}
+            {#意为"弹性布局"，用来为盒状模型提供最大的灵活性。#}
+            {#设为Flex布局以后，子元素的float、#}
+            {#clear和vertical-align属性将失效。#}
+            flex-direction: row;
+            {#flex-direction:row; 沿水平主轴让元素从左向右排列#}
+            justify-content: left;
+            {#justify-content 元素在主轴（页面）上的排列#}
+            {#justify-content : center;元素在主轴（页面）上居中排列#}
+            align-items: flex-start;
+            {#align-items : flex-start; 弹性盒子元素的侧轴（纵轴）起始位置的边界紧靠住该行的侧轴起始边界（靠上对齐）。#}
+            flex-wrap: wrap;
+            {#flex-wrap: wrap; 元素换行,比如：一个div宽度100%，设置此属性，第二个div就在第二行了；#}
+        }
+
+        .panel-body > .item {
+            border-radius: 6px;
+            {#它表示元素四个方向的圆角大小都是6px，即每个圆角的“水平半径”和“垂直半半径”都设置为6px；#}
+            width: 228px;
+            border: 1px solid #dddddd;
+            {#border描边#}
+            margin: 5px 10px;
+            {#margin：每个div的左右边距#}
+        }
+
+        {#hover:把鼠标放在div上显示的效果#}
+        .panel-body > .item:hover {
+            border: 1px solid #f0ad4e;
+        }
+
+        .panel-body > .item > .title {
+            height: 104px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            {#justify-content:水平方向的位置#}
+            align-items: center;
+            {#align-items：垂直方向的位置#}
+            border-top-left-radius: 6px;
+            {#border-top-left-radius：左上圆角#}
+            border-top-right-radius: 6px;
+            {#border-top-right-radius：右上圆角#}
+            font-size: 30px;
+            text-decoration: none ;
+            {#text-decoration:文本下划线设置#}
+        }
+
+        .panel-body > .item > .info {
+            padding: 10px 10px;
+            {#padding：上下边距10#}
+            display: flex;
+            justify-content: space-between;
+            {#justify-content : space-between;元素在主轴（页面）上左右两端或者上下两端开始排列#}
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            color: #8c8c8c;
+
+        }
+
+        .panel-body > .item > .info a {
+            text-decoration:none;
+        }
+
+        .panel-body > .item > .info .fa-star {
+            font-size: 18px;
+        }
+
+        .color-radio label {
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .color-radio input[type="radio"] {
+            display: none;
+        }
+
+        .color-radio input[type="radio"] + .cycle {
+            display: inline-block;
+            height: 25px;
+            width: 25px;
+            border-radius: 50%;
+            border: 2px solid #dddddd;
+        }
+
+        .color-radio input[type="radio"]:checked + .cycle {
+            border: 2px solid black;
         }
     </style>
 {% endblock %}
 
 {% block content %}
+
     <div class="container-fluid">
         <a class="btn btn-primary " data-toggle="modal" data-target="#addModal"><i class="fa fa-plus-circle"></i>新建项目</a>
+        <div class="panel panel-default project">
+          <div class="panel-heading"><i class="fa fa-star" style="color: #f0ad4e" aria-hidden="true" ></i> 星标</div>
+          <div class="panel-body">
+            {% for item in project_dict.star %}
+                <div class="item">
+                        <a href="#" class="title"
+                           style="background-color: {{ item.value.get_color_display }};">{{ item.value.name }}</a>
+                        <div class="info">
+                            <div>
+                                <a href="{% url 'project_unstar' project_type=item.type project_id=item.value.id %}">
+                                    <i class="fa fa-star" aria-hidden="true" style="color: #f0ad4e"></i>
+                                </a>
+                                <span>{{ item.value.creator.username }}</span>
+                            </div>
+                            <div>
+                                <i class="fa fa-user-o" aria-hidden="true"></i>
+                                <span>{{ item.value.join_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading"><i class="fa fa-list" aria-hidden="true"></i> 我创建的</div>
+          <div class="panel-body">
+            {% for item in project_dict.my %}
+                <div class="item">
+                        <a href="#" class="title"
+                           style="background-color: {{ item.get_color_display }};">{{ item.name }}</a>
+                        <div class="info">
+                            <div>
+                                <a href="{% url 'project_star' project_type="my" project_id=item.id %}">
+                                    <i class="fa fa-star" aria-hidden="true" style="color: #d5d5d5"></i>
+                                </a>
+                                <span>{{ item.creator.username }}</span>
+                            </div>
+                            <div>
+                                <i class="fa fa-user-o" aria-hidden="true"></i>
+                                <span>{{ item.join_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading"><i class="fa fa-handshake-o" aria-hidden="true"></i> 我参与的</div>
+          <div class="panel-body">
+            {% for item in project_dict.join %}
+                <div class="item">
+                        <a href="#" class="title"
+                           style="background-color: {{ item.get_color_display }};">{{ item.value.name }}</a>
+                        <div class="info">
+                            <div>
+                                <a href="{% url 'project_star' project_type="join" project_id=item.id %}">
+                                    <i class="fa fa-star" aria-hidden="true" style="color: #d5d5d5"></i>
+                                </a>
+                                <span>{{ item.creator.username }}</span>
+                            </div>
+                            <div>
+                                <i class="fa fa-user-o" aria-hidden="true"></i>
+                                <span>{{ item.join_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+            {% endfor %}
+          </div>
+        </div>
     </div>
 
     <!-- Modal -->
