@@ -144,6 +144,16 @@ try:
 except ImportError:
 	pass
 
+################## 登录白名单 ：无需验证即可访问的url #################
+WHITE_REGEX_URL_LIST = [
+    '/register/',
+    '/login/sms/',
+    '/login/',
+    '/index/',
+    '/image/code/',
+    '/send/sms/',
+]
+
 REST_FRAMEWORK = {
     # 全局使用的认证类：
     "DEFAULT_PARSER_CLASSES":['rest_framework.parsers.JSONParser','rest_framework.parsers.FormParser'],
