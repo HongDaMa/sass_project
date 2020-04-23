@@ -3,7 +3,9 @@
 from django.utils.deprecation import MiddlewareMixin
 from django.shortcuts import redirect
 from django.conf import settings
+from django.shortcuts import redirect
 from web import models
+
 import datetime
 
 class Tracer(object):
@@ -13,6 +15,8 @@ class Tracer(object):
         self.user =None
         #价格策略
         self.price_poliy =None
+        #项目
+        self.project = None
 
 class AuthMiddleWare(MiddlewareMixin):
     def process_request(self,request):
@@ -43,3 +47,23 @@ class AuthMiddleWare(MiddlewareMixin):
         if _object.end_datetime and _object.end_datetime < current_datetime:
             _object = models.Transaction.objects.filter(user=user_pbject, status=2,price_poliy__category=1).first()
         request.tracer.price_poliy = _object.price_poliy
+
+    def process_view(self, request,view,args,kwargs):
+        #判断url是否是以manage开头的,如果不是则return
+        if not request.path_info.startswith('/manage/'):
+            return
+        project_id = kwargs.get('project_id')
+
+        #是否是我创建的
+        project_object = models.Project.objects.filter(id=project_id,creator=request.tracer.user).first()
+        if project_object:
+            request.tracer.project = project_object
+            return
+
+        #是否是我参与的
+        project_user_object = models.ProjectUser.objects.filter(project_id=project_id,user=request.tracer.user).first()
+        if project_object:
+            request.tracer.project = project_user_object.project
+            return
+
+        return redirect('project_list')
