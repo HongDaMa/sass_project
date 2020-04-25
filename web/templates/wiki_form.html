@@ -1,5 +1,7 @@
 {% extends 'layout/manage.html' %}
+{% load static %}
 {% block css %}
+    <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
     <style>
     .title-list{
         border-right: 1px solid #dddddd;
@@ -22,6 +24,26 @@
         min-height: 600px;
         margin-left: -1px;
     }
+     .title-list {
+            border-right: 1px solid #dddddd;
+            min-height: 500px;
+        }
+    .title-list ul {
+            padding-left: 15px;
+        }
+
+        .title-list ul a {
+            display: block;
+            padding: 5px 0;
+        }
+    .content{
+        border-left: 1px solid #dddddd;
+        min-height: 600px;
+        margin-left: -1px;
+    }
+    .editormd-fullscreen{
+        z-index: 1001;
+    }
     </style>
 {% endblock %}
 
@@ -37,20 +59,34 @@
           </div>
           <div class="panel-body">
               <div class="col-sm-3 title-list">
-                  目录
+                  <div>
+                      <ul id="catalog">
+                      </ul>
+                  </div>
               </div>
               <div class="col-sm-9 content">
                   <form  method="POST">
                       {% for filed in form %}
-                          <div class="form-group">
-                            <label for="{{ filed.id_for_label }}">{{ filed.label }}</label>
-                              {{ filed }}
-                          </div>
+                          {% if filed.name == 'content' %}
+                              <div class="form-group">
+                                <label for="{{ filed.id_for_label }}">{{ filed.label }}</label>
+                                  <div id="editor">
+                                      {{ filed }}
+                                      <span class="error-msg">{{ filed.errors.0 }}</span>
+                                  </div>
+                              </div>
+                          {% else %}
+                              <div class="form-group">
+                                <label for="{{ filed.id_for_label }}">{{ filed.label }}</label>
+                                {{ filed }}
+                                <span class="error-msg">{{ filed.errors.0 }}</span>
+                             </div>
+                          {% endif %}
                       {% endfor %}
                     {% if wiki_object %}
-                        <button type="submit" class="btn btn-success">更新</button>
+                        <button type="submit" style="margin-bottom: 10px" class="btn btn-success">更新</button>
                         {% else %}
-                        <button type="submit" class="btn btn-primary">创建</button>
+                        <button type="submit" style="margin-bottom: 10px" class="btn btn-primary">创建</button>
                     {% endif %}
                     </form>
               </div>
@@ -58,3 +94,51 @@
         </div>
     </div>
 {% endblock %}
+
+{% block js %}
+    <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
+    <script>
+        var WIKI_DETAIL_URL = "{% url 'wiki' project_id=request.tracer.project.id %}";
+        $(function () {
+            initCatalog()
+            initEditor()
+        })
+        /*
+        初始化markdown
+        */
+        function initEditor(){
+            editormd('editor',{
+                placeholder:'请输入内容',
+                height:500,
+                path:"{% static 'plugin/editor-md/lib/' %}"
+            })
+        }
+        function initCatalog() {
+            $.ajax({
+                url:"{% url 'wiki_catalog' project_id=request.tracer.project.id %}",
+                type:"GET",
+                dataType:"JSON",
+                success:function (res) {
+                    if (res.status){
+                        $.each(res.data,function (key,value) {
+                            var href = WIKI_DETAIL_URL+'?wiki_id='+value.id;
+                            console.log(value.id,value.title,value.parent)
+                            if(value.parent == null){
+                                var li = $('<li>').attr('id','id_'+value.id).append($('<a>').text(value.title).attr('href', href)).append($('<ul>'))
+                                $('#catalog').append(li)
+                            }else {
+                                var li = $('<li>').attr('id','id_'+value.id).append($('<a>').text(value.title).attr('href', href)).append($('<ul>'))
+                                $('#id_'+value.parent).children("ul").append(li)
+                            }
+                        }
+                        )
+                    }else {
+                        alert("初始化目录失败");
+                    }
+                    }
+                }
+            )
+        }
+    </script>
+{% endblock %}
+

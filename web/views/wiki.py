@@ -42,7 +42,8 @@ class Wiki_Add(APIView):
             if form.instance.parent:
                 form.instance.depth = form.instance.parent.depth + 1
             else:
-                form.instance.project = request.tracer.project
+                form.instance.depth = 1
+            form.instance.project = request.tracer.project
             form.save()
             url = reverse('wiki',kwargs={'project_id':project_id})
 
