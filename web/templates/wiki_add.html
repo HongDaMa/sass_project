@@ -1,0 +1,56 @@
+{% extends 'layout/manage.html' %}
+{% block css %}
+    <style>
+    .title-list{
+        border-right: 1px solid #dddddd;
+        min-height: 500px;
+    }
+    .panel-body{
+        padding: 0;
+    }
+    .panel-heading{
+        display: flex;
+            {#Flex是Flexible Box的缩写，#}
+            {#意为"弹性布局"，用来为盒状模型提供最大的灵活性。#}
+            {#设为Flex布局以后，子元素的float、#}
+            {#clear和vertical-align属性将失效。#}
+            flex-direction: row;
+            justify-content: space-between;
+    }
+    .content{
+        border-left: 1px solid #dddddd;
+        min-height: 600px;
+        margin-left: -1px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="panel panel-default project">
+          <div class="panel-heading">
+              <i class="fa fa-book" aria-hidden="true" ></i>wiki文档
+
+            <div class="funtion">
+                <a href="{% url 'wiki_add' project_id=request.tracer.project.id %}" class="btn btn-success btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>新建</a>
+            </div>
+          </div>
+          <div class="panel-body">
+              <div class="col-sm-3 title-list">
+                  目录
+              </div>
+              <div class="col-sm-9 content">
+                  <form action="{% url 'wiki_add' project_id=request.tracer.project.id %}" method="POST">
+                      {% for filed in form %}
+                          <div class="form-group">
+                            <label for="{{ filed.id_for_label }}">{{ filed.label }}</label>
+                              {{ filed }}
+                          </div>
+                      {% endfor %}
+                      <button type="submit" class="btn btn-primary">创建</button>
+                    </form>
+              </div>
+          </div>
+        </div>
+    </div>
+{% endblock %}

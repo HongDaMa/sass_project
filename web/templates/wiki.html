@@ -1,5 +1,97 @@
 {% extends 'layout/manage.html' %}
+{% block css %}
+    <style>
+    .title-list{
+        border-right: 1px solid #dddddd;
+        min-height: 500px;
+    }
+    .panel-body{
+        padding: 0;
+    }
+    .panel-heading{
+        display: flex;
+            {#Flex是Flexible Box的缩写，#}
+            {#意为"弹性布局"，用来为盒状模型提供最大的灵活性。#}
+            {#设为Flex布局以后，子元素的float、#}
+            {#clear和vertical-align属性将失效。#}
+            flex-direction: row;
+            justify-content: space-between;
+    }
+    .content{
+        border-left: 1px solid #dddddd;
+        min-height: 600px;
+        margin-left: -1px;
+    }
+    </style>
+{% endblock %}
 
 {% block content %}
-    <h1>wiki</h1>
+    <div class="container-fluid">
+        <div class="panel panel-default project">
+          <div class="panel-heading">
+              <i class="fa fa-book" aria-hidden="true" ></i>wiki文档
+
+            <div class="funtion">
+                <a href="{% url 'wiki_add' project_id=request.tracer.project.id %}" class="btn btn-success btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>新建</a>
+            </div>
+          </div>
+          <div class="panel-body">
+              <div class="col-sm-3 title-list">
+                  目录
+                  <div>
+                      <ul id="catalog">
+
+                      </ul>
+                  </div>
+              </div>
+              <div class="col-sm-9 content">
+                  <div style="margin-top: 50px;text-align: center" >
+                      <h4>《{{ request.tracer.project.name}}》wiki文档库</h4>
+                              <a href="{% url 'wiki_add' project_id=request.tracer.project.id %}">
+                          <i class="fa fa-plus-circle" aria-hidden="true">新建文章</i>
+                      </a>
+                  </div>
+              </div>
+          </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            initCatalog()
+        })
+        function initCatalog() {
+            $.ajax({
+                url:"{% url 'wiki_catalog' project_id=request.tracer.project.id %}",
+                type:"GET",
+                dataType:"JSON",
+                success:function (res) {
+                    $.each(res,function (key,value) {
+                            console.log(value.id,value.title,value.parent)
+                            if(value.parent == null){
+                                var li = $('<li>').attr('id','id_'+value.id).append($('<a>').text(value.title)).append($('<ul>'))
+                                $('#catalog').append(li)
+                                {#var li_str = '<li id='+'li_'+value.id.toString()+'></li>'#}
+                                {#var a_str = '<a id='+'a_'+value.id.toString()+'>'+value.title+'</a>'#}
+                                {#$('#catalog').append(li_str)#}
+                                {#$('#'+'li_'+value.id.toString()).append(a_str)#}
+                            }else {
+                                var li = $('<li>').attr('id','id_'+value.id).append($('<a>').text(value.title)).append($('<ul>'))
+                                $('#id_'+value.parent).children("ul").append(li)
+                                {#var ul_str = '<ul id='+'ul_'+value.id.toString()+'></ul>'#}
+                                {#var li_str = '<li id='+'li_'+value.id.toString()+'></li>'#}
+                                {#var a_str = '<a id='+'a_'+value.id.toString()+'>'+value.title+'</a>'#}
+                                {#$('#'+'li_'+value.parent.toString()).append(ul_str)#}
+                                {#$('#'+'ul_'+value.id.toString()).append(li_str)#}
+                                {#$('#'+'li_'+value.id.toString()).append(a_str)#}
+                            }
+                        }
+                        )
+                    }
+                }
+            )
+        }
+    </script>
 {% endblock %}
