@@ -40,14 +40,18 @@
                   目录
               </div>
               <div class="col-sm-9 content">
-                  <form action="{% url 'wiki_add' project_id=request.tracer.project.id %}" method="POST">
+                  <form  method="POST">
                       {% for filed in form %}
                           <div class="form-group">
                             <label for="{{ filed.id_for_label }}">{{ filed.label }}</label>
                               {{ filed }}
                           </div>
                       {% endfor %}
-                      <button type="submit" class="btn btn-primary">创建</button>
+                    {% if wiki_object %}
+                        <button type="submit" class="btn btn-success">更新</button>
+                        {% else %}
+                        <button type="submit" class="btn btn-primary">创建</button>
+                    {% endif %}
                     </form>
               </div>
           </div>

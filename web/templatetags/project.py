@@ -12,7 +12,6 @@ def all_project_list(request):
     :return:
     """
     my_project_list = models.Project.objects.filter(creator=request.tracer.user)
-    print(my_project_list)
     join_project_list = models.ProjectUser.objects.filter(user=request.tracer.user)
 
     return {'my':my_project_list,'join':join_project_list,'request':request}

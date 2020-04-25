@@ -17,6 +17,18 @@
             flex-direction: row;
             justify-content: space-between;
     }
+    .title-list {
+            border-right: 1px solid #dddddd;
+            min-height: 500px;
+        }
+    .title-list ul {
+            padding-left: 15px;
+        }
+
+        .title-list ul a {
+            display: block;
+            padding: 5px 0;
+        }
     .content{
         border-left: 1px solid #dddddd;
         min-height: 600px;
@@ -29,28 +41,50 @@
     <div class="container-fluid">
         <div class="panel panel-default project">
           <div class="panel-heading">
-              <i class="fa fa-book" aria-hidden="true" ></i>wiki文档
-
+          <div>
+              <i class="fa fa-book" aria-hidden="true" ></i> wiki文档
+          </div>
             <div class="funtion">
-                <a href="{% url 'wiki_add' project_id=request.tracer.project.id %}" class="btn btn-success btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>新建</a>
+                <a href="{% url 'wiki_add' project_id=request.tracer.project.id %}"
+                        class="btn btn-success btn-xs">
+                    <i class="fa fa-plus-circle" aria-hidden="true">
+                    </i>
+                    新建
+                </a>
+                {% if wiki_project %}
+                    <a href="{% url 'wiki_edit' project_id=request.tracer.project.id wiki_id=wiki_project.id %}"
+                   class="btn btn-info btn-xs">
+                    <i class="fa fa-edit" aria-hidden="true">
+                    </i>
+                    编辑
+                    </a>
+                    <a href="{% url 'wiki_delete' project_id=request.tracer.project.id wiki_id=wiki_project.id %}"
+                   class="btn btn-danger btn-xs">
+                    <i class="fa fa-trash" aria-hidden="true">
+                    </i>
+                    删除
+                    </a>
+                {% endif %}
             </div>
           </div>
           <div class="panel-body">
               <div class="col-sm-3 title-list">
-                  目录
                   <div>
                       <ul id="catalog">
-
                       </ul>
                   </div>
               </div>
               <div class="col-sm-9 content">
-                  <div style="margin-top: 50px;text-align: center" >
+                  {% if wiki_project %}
+                      {{ wiki_project.content }}
+                  {% else %}
+                      <div style="margin-top: 50px;text-align: center" >
                       <h4>《{{ request.tracer.project.name}}》wiki文档库</h4>
-                              <a href="{% url 'wiki_add' project_id=request.tracer.project.id %}">
-                          <i class="fa fa-plus-circle" aria-hidden="true">新建文章</i>
-                      </a>
-                  </div>
+                          <a href="{% url 'wiki_add' project_id=request.tracer.project.id %}">
+                            <i class="fa fa-plus-circle" aria-hidden="true">新建文章</i>
+                          </a>
+                      </div>
+                  {% endif %}
               </div>
           </div>
         </div>
@@ -59,6 +93,7 @@
 
 {% block js %}
     <script>
+        var WIKI_DETAIL_URL = "{% url 'wiki' project_id=request.tracer.project.id %}";
         $(function () {
             initCatalog()
         })
@@ -68,17 +103,19 @@
                 type:"GET",
                 dataType:"JSON",
                 success:function (res) {
-                    $.each(res,function (key,value) {
+                    if (res.status){
+                        $.each(res.data,function (key,value) {
+                            var href = WIKI_DETAIL_URL+'?wiki_id='+value.id;
                             console.log(value.id,value.title,value.parent)
                             if(value.parent == null){
-                                var li = $('<li>').attr('id','id_'+value.id).append($('<a>').text(value.title)).append($('<ul>'))
+                                var li = $('<li>').attr('id','id_'+value.id).append($('<a>').text(value.title).attr('href', href)).append($('<ul>'))
                                 $('#catalog').append(li)
                                 {#var li_str = '<li id='+'li_'+value.id.toString()+'></li>'#}
                                 {#var a_str = '<a id='+'a_'+value.id.toString()+'>'+value.title+'</a>'#}
                                 {#$('#catalog').append(li_str)#}
                                 {#$('#'+'li_'+value.id.toString()).append(a_str)#}
                             }else {
-                                var li = $('<li>').attr('id','id_'+value.id).append($('<a>').text(value.title)).append($('<ul>'))
+                                var li = $('<li>').attr('id','id_'+value.id).append($('<a>').text(value.title).attr('href', href)).append($('<ul>'))
                                 $('#id_'+value.parent).children("ul").append(li)
                                 {#var ul_str = '<ul id='+'ul_'+value.id.toString()+'></ul>'#}
                                 {#var li_str = '<li id='+'li_'+value.id.toString()+'></li>'#}
@@ -89,6 +126,9 @@
                             }
                         }
                         )
+                    }else {
+                        alert("初始化目录失败");
+                    }
                     }
                 }
             )

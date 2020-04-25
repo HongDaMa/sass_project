@@ -6,10 +6,10 @@ from django.core.validators import RegexValidator,ValidationError
 from django.core.exceptions import ValidationError
 from web.forms.account import BootStrapForm
 
-class Wiki_Add_Form(BootStrapForm,forms.ModelForm):
+class Wiki_Model_Form(BootStrapForm,forms.ModelForm):
     class Meta:
         model = models.Wiki
-        exclude = ['project']
+        exclude = ['project','depth']
 
     #找到想要的字段把他绑定显示的数据重置
     # 数据 = 去数据库中获取 当前项目所有的wiki标题
