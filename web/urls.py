@@ -26,6 +26,7 @@ urlpatterns = [
         url(r'^wiki/$', wiki.Wiki.as_view(), name='wiki'),
         url(r'wiki/catalog/$',wiki.Wiki_Catalog.as_view(),name='wiki_catalog'),
         url(r'^wiki/add/$', wiki.Wiki_Add.as_view(), name='wiki_add'),
+        url(r'^wiki/upload/$',wiki.Wiki_Upload.as_view(),name='wiki_upload'),
         url(r'^wiki/delete/(?P<wiki_id>\d+)$', wiki.Wiki_Detele.as_view(), name='wiki_delete'),
         url(r'^wiki/edit/(?P<wiki_id>\d+)$', wiki.Wiki_Edit.as_view(), name='wiki_edit'),
         url(r'^setting/$', manage.Setting.as_view(), name='setting'),

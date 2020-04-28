@@ -51,8 +51,9 @@
     <div class="container-fluid">
         <div class="panel panel-default project">
           <div class="panel-heading">
-              <i class="fa fa-book" aria-hidden="true" ></i>wiki文档
-
+              <div>
+                  <i class="fa fa-book" aria-hidden="true" ></i> wiki文档
+              </div>
             <div class="funtion">
                 <a href="{% url 'wiki_add' project_id=request.tracer.project.id %}" class="btn btn-success btn-xs"><i class="fa fa-plus" aria-hidden="true"></i>新建</a>
             </div>
@@ -99,6 +100,7 @@
     <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
     <script>
         var WIKI_DETAIL_URL = "{% url 'wiki' project_id=request.tracer.project.id %}";
+        var WIKI_UPLOAD_URL = "{% url 'wiki_upload' project_id=request.tracer.project.id %}";
         $(function () {
             initCatalog()
             initEditor()
@@ -110,7 +112,10 @@
             editormd('editor',{
                 placeholder:'请输入内容',
                 height:500,
-                path:"{% static 'plugin/editor-md/lib/' %}"
+                path:"{% static 'plugin/editor-md/lib/' %}",
+                imageUpload:true,
+                imageFormats:['jpg','png','gif','jpeg'],
+                imageUploadURL:WIKI_UPLOAD_URL
             })
         }
         function initCatalog() {

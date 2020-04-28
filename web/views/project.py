@@ -4,7 +4,9 @@ from django.shortcuts import render,HttpResponse,redirect
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from web.forms.project import ProjectModelForm
+from utils.tencent import cos
 from web import models
+import time
 
 class Project_List(APIView):
     """项目列表"""
@@ -35,6 +37,13 @@ class Project_List(APIView):
         if form.is_valid():
             #验证通过
             form.instance.creator = request.tracer.user
+            # 1.为项目创建一个桶
+            bucket = "{}-{}-1258040712".format(request.tracer.user.mobile_phone,int(time.time()))
+            region = 'ap-nanjing'
+            cos.create_bucket(bucket,region)
+            # 2. 把桶和区域写进数据库
+            form.instance.bucket = bucket
+            form.instance.region = region
             #讲项目保存到数据库
             form.save()
             return JsonResponse({'status':True})

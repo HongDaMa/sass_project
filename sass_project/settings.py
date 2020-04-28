@@ -133,6 +133,10 @@ TENCENT_SMS_APP_KEY = '6666666666666666666'
 
 TENCENT_SMS_SIGN = '66666'
 
+TENCENT_COS_ID = "COS的session_id"
+
+TENCENT_COS_KEY = "COS的session_key"
+
 TENCET_SMS_TEMPLATES = {
     'register':582869,
     'login':582871,
@@ -156,5 +160,7 @@ WHITE_REGEX_URL_LIST = [
 
 REST_FRAMEWORK = {
     # 全局使用的认证类：
-    "DEFAULT_PARSER_CLASSES":['rest_framework.parsers.JSONParser','rest_framework.parsers.FormParser'],
+    "DEFAULT_PARSER_CLASSES":['rest_framework.parsers.JSONParser',
+                              'rest_framework.parsers.FormParser',
+                              'rest_framework.parsers.FileUploadParser'],
 }

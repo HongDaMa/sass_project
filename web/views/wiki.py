@@ -6,7 +6,10 @@ from django.urls import reverse
 from web.forms.wiki import Wiki_Model_Form
 from rest_framework.views import APIView
 from rest_framework import serializers
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from web import models
+from utils.tencent.cos import upload_file
 
 class MySerializers2(serializers.ModelSerializer):
 
@@ -83,6 +86,33 @@ class Wiki_Detele(APIView):
         models.Wiki.objects.filter(project_id=project_id,id=wiki_id).delete()
         url = reverse('wiki', kwargs={'project_id': project_id})
         return redirect(url)
+
+class Wiki_Upload(APIView):
+    """  上传文件  """
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(Wiki_Upload,self).dispatch(request, *args, **kwargs)
+
+    def post(self,request,project_id):
+        result = {
+            'success':0,
+            'massage':None,
+            'url':None,
+        }
+        # 1.获取上传得文件对象
+        files_object = request._request.FILES.get('editormd-image-file')
+        if not files_object:
+            result['massage'] = "文件不存在"
+            return JsonResponse(result)
+        #调用上传文件函数
+        image_url = upload_file(request,files_object)
+        result = {
+            'success': 1,
+            'massage': None,
+            'url': image_url,
+        }
+        return JsonResponse(result)
 
 class Wiki_Catalog(APIView):
     """ wiki目录 """
