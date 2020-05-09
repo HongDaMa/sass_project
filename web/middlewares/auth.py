@@ -23,8 +23,8 @@ class AuthMiddleWare(MiddlewareMixin):
         request.tracer = Tracer()
         """如果用户已经登陆"""
         user_id = request.session.get('user_id',0)
-        user_pbject = models.UserInfo.objects.filter(id = user_id).first()
-        request.tracer.user = user_pbject
+        user_object = models.UserInfo.objects.filter(id = user_id).first()
+        request.tracer.user = user_object
 
         #白名单：没有登录都有可以访问的URL
         """
@@ -41,11 +41,11 @@ class AuthMiddleWare(MiddlewareMixin):
         #登录成功之后，访问后台管理时，获取当前用户所拥有的额度
         #方式一：免费额度在交易记录中存储
         #获取当前用户ID最大值（最近交易记录）
-        _object = models.Transaction.objects.filter(user=user_pbject,status=2).order_by('-id').first()
+        _object = models.Transaction.objects.filter(user=user_object,status=2).order_by('-id').first()
         #判断是否已经过期
         current_datetime = datetime.datetime.now()
         if _object.end_datetime and _object.end_datetime < current_datetime:
-            _object = models.Transaction.objects.filter(user=user_pbject, status=2,price_poliy__category=1).first()
+            _object = models.Transaction.objects.filter(user=user_object, status=2,price_poliy__category=1).first()
         request.tracer.price_poliy = _object.price_poliy
 
     def process_view(self, request,view,args,kwargs):

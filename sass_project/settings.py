@@ -164,3 +164,5 @@ REST_FRAMEWORK = {
                               'rest_framework.parsers.FormParser',
                               'rest_framework.parsers.FileUploadParser'],
 }
+
+TIME_ZONE = 'Asia/Shanghai'
